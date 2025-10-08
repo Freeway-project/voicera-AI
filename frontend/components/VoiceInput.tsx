@@ -1,0 +1,101 @@
+"use client";
+import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Mic, Square, Loader2 } from "lucide-react";
+
+interface VoiceInputProps {
+  onTranscript: (text: string) => void;
+}
+
+export default function VoiceInput({ onTranscript }: VoiceInputProps) {
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
+        stream.getTracks().forEach((track) => track.stop());
+        await processAudio(audioBlob);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error("Error accessing microphone:", error);
+      alert("Could not access microphone. Please check permissions.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsProcessing(true);
+    }
+  };
+
+  const processAudio = async (audioBlob: Blob) => {
+    // For now, we'll use the browser's Web Speech API for transcription
+    // In production, you'd send this to your backend for processing
+    try {
+      // Placeholder: Convert audio to text using Web Speech API
+      // This is a simplified version - you'd typically send to backend
+      const mockTranscript = "Voice transcription would appear here. Integrate with your backend speech-to-text service.";
+      onTranscript(mockTranscript);
+    } catch (error) {
+      console.error("Error processing audio:", error);
+      alert("Error processing audio");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <Button
+        onClick={isRecording ? stopRecording : startRecording}
+        disabled={isProcessing}
+        variant={isRecording ? "destructive" : "default"}
+        size="lg"
+        className="w-32"
+      >
+        {isProcessing ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Processing
+          </>
+        ) : isRecording ? (
+          <>
+            <Square className="mr-2 h-4 w-4" />
+            Stop
+          </>
+        ) : (
+          <>
+            <Mic className="mr-2 h-4 w-4" />
+            Record
+          </>
+        )}
+      </Button>
+      {isRecording && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          Recording...
+        </div>
+      )}
+    </div>
+  );
+}
