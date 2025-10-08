@@ -49,16 +49,26 @@ export default function VoiceInput({ onTranscript }: VoiceInputProps) {
   };
 
   const processAudio = async (audioBlob: Blob) => {
-    // For now, we'll use the browser's Web Speech API for transcription
-    // In production, you'd send this to your backend for processing
     try {
-      // Placeholder: Convert audio to text using Web Speech API
-      // This is a simplified version - you'd typically send to backend
-      const mockTranscript = "Voice transcription would appear here. Integrate with your backend speech-to-text service.";
-      onTranscript(mockTranscript);
+      // Send audio to backend for speech-to-text processing
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "recording.webm");
+
+      const API = process.env.NEXT_PUBLIC_API_URL || "https://opulent-space-fiesta-94pgrxq6pg5f7xq9-5000.app.github.dev";
+      const response = await fetch(`${API}/api/transcribe`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Transcription failed");
+      }
+
+      const data = await response.json();
+      onTranscript(data.text || data.transcript || "");
     } catch (error) {
       console.error("Error processing audio:", error);
-      alert("Error processing audio");
+      alert("Error processing audio. Please try again.");
     } finally {
       setIsProcessing(false);
     }

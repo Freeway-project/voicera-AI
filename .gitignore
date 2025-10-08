@@ -36,3 +36,21 @@ yarn-error.log*
 next-env.d.ts
 
 /backend/.venv
+
+
+# Python
+__pycache__/
+*.pyc
+
+# Large files
+backend/models/emotion-roberta-demo/
+
+# Node.js
+node_modules/
+.next/
+
+# OS-specific
+.DS_Store
+
+# Logs
+*.log
