@@ -1,6 +1,12 @@
 "use client";
 import { useState } from "react";
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import EmotionChart from "../components/EmotionChart";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+
+const API = process.env.NEXT_PUBLIC_API_URL || "https://opulent-space-fiesta-94pgrxq6pg5f7xq9-5000.app.github.dev";
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -10,7 +16,8 @@ export default function Home() {
   const [loadingB, setLoadingB] = useState(false);
 
   const summarize = async () => {
-    setLoadingA(true); setSum(null);
+    setLoadingA(true);
+    setSum(null);
     const res = await fetch(`${API}/api/summarize`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -21,7 +28,8 @@ export default function Home() {
   };
 
   const emotion = async () => {
-    setLoadingB(true); setEmo(null);
+    setLoadingB(true);
+    setEmo(null);
     const res = await fetch(`${API}/api/emotion`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -31,33 +39,50 @@ export default function Home() {
     setLoadingB(false);
   };
 
-  const box = { background:"#f6f8fa", padding:12 as const, borderRadius:8, whiteSpace:"pre-wrap" as const };
-
   return (
-    <main style={{maxWidth:900, margin:"40px auto", padding:16, fontFamily:"system-ui,sans-serif"}}>
+    <main>
       <h1>Transformers Demo</h1>
       <p>Summarization (DistilBART) + Emotion (DistilRoBERTa)</p>
 
-      <textarea value={text} onChange={(e)=>setText(e.target.value)} placeholder="Paste long text…" 
-        style={{width:"100%", minHeight:160, padding:10, marginTop:12}} />
-
-      <div style={{display:"flex", gap:12, marginTop:12}}>
-        <button onClick={summarize} disabled={loadingA} style={{padding:"10px 16px"}}>
-          {loadingA ? "Summarizing…" : "Summarize"}
-        </button>
-        <button onClick={emotion} disabled={loadingB} style={{padding:"10px 16px"}}>
-          {loadingB ? "Detecting Emotion…" : "Detect Emotion"}
-        </button>
+      <div className="grid w-full gap-1.5 mt-4">
+        <Label htmlFor="text">Your Text</Label>
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Paste long text…"
+          id="text"
+        />
       </div>
 
-      <section style={{marginTop:24}}>
-        <h3>Summary</h3>
-        <pre style={box}>{sum ? (sum.summary || JSON.stringify(sum, null, 2)) : "—"}</pre>
+      <div className="flex gap-4 mt-4">
+        <Button onClick={summarize} disabled={loadingA}>
+          {loadingA ? "Summarizing…" : "Summarize"}
+        </Button>
+        <Button onClick={emotion} disabled={loadingB}>
+          {loadingB ? "Detecting Emotion…" : "Detect Emotion"}
+        </Button>
+      </div>
+
+      <section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <pre>{sum ? (sum.summary || JSON.stringify(sum, null, 2)) : "—"}</pre>
+          </CardContent>
+        </Card>
       </section>
 
-      <section style={{marginTop:24}}>
-        <h3>Emotion</h3>
-        <pre style={box}>{emo ? JSON.stringify(emo, null, 2) : "—"}</pre>
+      <section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Emotion</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {emo ? <EmotionChart emotions={emo.probs} /> : "—"}
+          </CardContent>
+        </Card>
       </section>
     </main>
   );

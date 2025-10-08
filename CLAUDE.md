@@ -1,0 +1,1 @@
+- simplify setupa dns etuarup abckend make it run on 5000 port and also make it compaitbbale
