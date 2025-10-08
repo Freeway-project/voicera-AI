@@ -30,6 +30,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+models/
 
 # typescript
 *.tsbuildinfo
@@ -54,3 +55,18 @@ node_modules/
 
 # Logs
 *.log
+
+# Ignore Docker-related files
+docker-compose.override.yml
+*.dockerfile
+docker-compose.yml
+
+# Ignore model files
+*.h5
+*.pkl
+*.pt
+*.onnx
+*.joblib
+*.sav
+models/
+checkpoints/
