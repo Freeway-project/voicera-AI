@@ -20,6 +20,9 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy application code
 COPY . .
 
+# Ensure public directory exists
+RUN mkdir -p public
+
 # Set environment variable for production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production

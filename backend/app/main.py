@@ -6,6 +6,12 @@ def get_app() -> FastAPI:
     app = FastAPI(title="NLP Demo (Modular FastAPI)")
     setup_cors(app)
     app.include_router(api_router)
+
+    # Health check endpoint
+    @app.get("/health")
+    def health_check():
+        return {"status": "healthy"}
+
     return app
 
 app = get_app()

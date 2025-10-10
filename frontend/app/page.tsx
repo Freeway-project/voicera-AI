@@ -8,12 +8,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://opulent-space-fiesta-94pgrxq6pg5f7xq9-5000.app.github.dev";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+interface SummaryResponse {
+  summary?: string;
+  [key: string]: unknown;
+}
+
+interface EmotionResponse {
+  probs?: Array<{ label: string; score: number }>;
+  [key: string]: unknown;
+}
 
 export default function Home() {
   const [text, setText] = useState("");
-  const [sum, setSum] = useState<any>(null);
-  const [emo, setEmo] = useState<any>(null);
+  const [sum, setSum] = useState<SummaryResponse | null>(null);
+  const [emo, setEmo] = useState<EmotionResponse | null>(null);
   const [loadingA, setLoadingA] = useState(false);
   const [loadingB, setLoadingB] = useState(false);
 
@@ -113,7 +123,7 @@ export default function Home() {
             <CardTitle>Emotion</CardTitle>
           </CardHeader>
           <CardContent>
-            {emo ? <EmotionChart emotions={emo.probs} /> : "—"}
+            {emo && emo.probs ? <EmotionChart emotions={emo.probs} /> : "—"}
           </CardContent>
         </Card>
       </section>
